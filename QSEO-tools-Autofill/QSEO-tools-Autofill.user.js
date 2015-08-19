@@ -1,12 +1,12 @@
 ﻿// ==UserScript==
-// @name        QSEO-tools-Autofill
-// @namespace   http://qseo.ru
-// @description  Autofill tool for quick submit forms on sites via url
-// @version     1.0
-// @updateURL   https://github.com/Qseo/QSEO-tools-Autofill/raw/master/QSEO-tools-Autofill/QSEO-tools-Autofill.user.js
-// @downloadURL https://github.com/Qseo/QSEO-tools-Autofill/raw/master/QSEO-tools-Autofill/QSEO-tools-Autofill.user.js
-// @include     http*://*/*_autofill=*
-// @grant    GM_info
+// @name          QSEO-tools-Autofill
+// @namespace     http://qseo.ru
+// @description   Autofill tool for quick submit forms on sites via url. Homepage: https://github.com/Qseo/QSEO-tools-Autofill/
+// @version       1.1
+// @updateURL     https://github.com/Qseo/QSEO-tools-Autofill/raw/master/QSEO-tools-Autofill/QSEO-tools-Autofill.user.js
+// @downloadURL   https://github.com/Qseo/QSEO-tools-Autofill/raw/master/QSEO-tools-Autofill/QSEO-tools-Autofill.user.js
+// @include       http*://*/*_autofill=*
+// @grant         GM_info
 // ==/UserScript==
 
 // alert('x');
@@ -46,8 +46,17 @@ function GM_main ($) {
       item = commands[i];
       if(item) {
         if(debug) { console.log('Parsing _autofill item "' + item + '"'); }
-        var parts = item.split('=');
-        if(parts[0] == 'click') {
+        var parts = item.split(/=(.+)?/);
+        parts[0] = qseoReplaceUrlPlaceholders(parts[0]);
+        parts[1] = qseoReplaceUrlPlaceholders(parts[1]);
+        if(parts[0] == 'href') {
+          var url = $(parts[1]).attr('href');
+          if(!url) {
+            url = $(parts[1])[0].attr('href');
+          }
+          if(debug) { console.log('Going to href link "' + url + '" on selector "' + parts[1] + '"'); }
+          window.location.href = url;
+        } else if(parts[0] == 'click') {
           if(debug) { console.log('Clicking jquery selector "' + parts[1] + '"'); }
           $(parts[1]).trigger('click');
         } else if(parts[0] == 'sleep') {
@@ -55,7 +64,7 @@ function GM_main ($) {
           setTimeout(function() { window.qseoAutofillDoCommans(commands, i+1);  }, parts[1]);
           return;
         } else {
-          if(debug) { console.log('Filling jquery selector "' + parts[0] + '"" via value "' + parts[1] + '"'); }
+          if(debug) { console.log('Filling jquery selector "' + parts[0] + '" via value "' + parts[1] + '"'); }
           $(parts[0]).val(parts[1]);
         }
       }
@@ -63,7 +72,7 @@ function GM_main ($) {
   }
 
   if(urlParams['_autofill']) {
-    var commands = qseoReplaceUrlPlaceholders(urlParams['_autofill']).split(';');
+    var commands = urlParams['_autofill'].split(';');
     qseoAutofillDoCommans(commands);
   }
 }

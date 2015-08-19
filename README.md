@@ -40,6 +40,8 @@ Description in Russian
 
 3. https://accounts.google.com/ServiceLogin?service=mail&debug&continue=https://mail.google.com/mail/&hl=ru&_autofill=$$Email=vasya;click=$$next;sleep=1000;$$Passwd=super-password;click=$$signIn - выполнит вход на почту Gmail, учитывая необходимость двойного клика по кнопкам в форме.
 
+4. http://yandex.ru/yandsearch?text=url%3Ahttp%3A%2F%2Fexample.com%2Fboring&how=tm&_autofill=sleep%3D10%3Bhref%3D.popup2%20a.i-bem - откроет страницу кеша Яндекс по данному урлу.
+
 
 Установка:
 ------------------------
@@ -74,4 +76,6 @@ Description in Russian
 Changelog
 ------------------------
 
-2015-08-18 - версия 0.1. Первая тестовая версия.
+2015-08-19 - версия 1.1. Улучшено распознавание символа "=" в значениях. Добавлена поддержка команды href (перейти по ссылке).
+
+2015-08-18 - версия 1.0. Первая тестовая версия.
