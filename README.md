@@ -16,10 +16,6 @@ Description in Russian
 
 Для того, чтобы заполнить поле формы значением - нужно указать в url-адресе jquery-селектор для этого элемента и требуемое значение.
 
-Чтобы не конфликтовать со спецсимволвами в url-адресе - используются следующие замены:
-- вместо # - указывать ключ $$
-- вместо & - указывать ключ @@
-
 Элементы для заполнения передаются через параметр _autofill в url-адресе, разделенные точкой с запятой. 
 
 Команды выполняются последовательно. Кроме заполнения форм доступны также специальные команды:
@@ -34,11 +30,11 @@ Description in Russian
 Примеры: 
 ------------------------
 
-1. https://mail.yandex.ru/?_autofill=$$nb-1%20input=vasya;$$nb-2%20input=super-password - откроет страницу Яндекс.Почты и автоматически заполнит логин-пароль
+1. https://mail.yandex.ru/?_autofill=%23nb-1%20input=vasya;%23nb-2%20input=super-password - откроет страницу Яндекс.Почты и автоматически заполнит логин-пароль
 
-2. https://mail.yandex.ru/?_autofill=$$nb-1%20input=vasya;$$nb-2%20input=super-password;click=button._nb-action-button - откроет страницу Яндекс.Почты и автоматически заполнит логин-пароль из url-адреса
+2. https://mail.yandex.ru/?_autofill=%23nb-1%20input=vasya;%23nb-2%20input=super-password;click=button._nb-action-button - откроет страницу Яндекс.Почты и автоматически заполнит логин-пароль из url-адреса
 
-3. https://accounts.google.com/ServiceLogin?service=mail&debug&continue=https://mail.google.com/mail/&hl=ru&_autofill=$$Email=vasya;click=$$next;sleep=1000;$$Passwd=super-password;click=$$signIn - выполнит вход на почту Gmail, учитывая необходимость двойного клика по кнопкам в форме.
+3. https://accounts.google.com/ServiceLogin?service=mail&debug&continue=https://mail.google.com/mail/&hl=ru&_autofill=%23Email=vasya;click=%23next;sleep=1000;%23Passwd=super-password;click=%23signIn - выполнит вход на почту Gmail, учитывая необходимость двойного клика по кнопкам в форме.
 
 4. http://yandex.ru/yandsearch?text=url%3Ahttp%3A%2F%2Fexample.com%2Fboring&how=tm&_autofill=sleep%3D10%3Bhref%3D.popup2%20a.i-bem - откроет страницу кеша Яндекс по данному урлу.
 
@@ -75,6 +71,8 @@ Description in Russian
 
 Changelog
 ------------------------
+
+2016-02-02 - версия 1.2. Добавлена возможность работы с любыми селекторами без использования замен. Все селекторы и значения заполняемых полей должны быть предварительно обработаны в urlencode.
 
 2015-08-19 - версия 1.1. Улучшено распознавание символа "=" в значениях. Добавлена поддержка команды href (перейти по ссылке).
 

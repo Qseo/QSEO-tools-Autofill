@@ -14,92 +14,147 @@
 
 var jquery_url = '//code.jquery.com/jquery-latest.min.js';
 
-if(window.location.host.match(/yandex\./))
+if( window.location.host.match(/yandex\./) ) {
   jquery_url = '//yastatic.net/jquery/1.11.0/jquery.min.js';
+}
 
+var query = window.location.search.substring(1);
 
-function GM_main ($) {
-  var urlParams;
+if ( /_autofill=/g.test(query) ) {
+  var debug = /debug=/g.test(query);
 
-  window.qseoToolsUpdateUrlParams = function() {
-      var match,
-          pl     = /\+/g,  // Regex for replacing addition symbol with a space
-          search = /([^&=]+)=?([^&]*)/g,
-          decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
-          query  = window.location.search.substring(1);
-      
-      urlParams = {};
-      while (match = search.exec(query))
-          urlParams[decode(match[1])] = decode(match[2]);
+  if (typeof jQuery === "function") {
+    if (debug) {
+      console.log("Running with local copy of jQuery!");
+    }
+
+    GM_main(jQuery);
   }
+  else {
+    if (debug) {
+      console.log("fetching jQuery from some 3rd-party server.");
+    }
+
+    add_jQuery(GM_main);
+  }
+}
+
+function GM_main($) {
+  window.decode = function(s) {
+    return decodeURIComponent( s.replace(/\+/g, " ") );
+  };
+
+  window.qseoToolsGetUrlParams = function() {
+    var params = {},
+        match,
+        search = /([^&=]+)=?([^&]*)/g,
+        query  = window.location.search.substring(1);
+
+    while (match = search.exec(query)) {
+      params[ decode(match[1]) ] = match[2];
+    }
+
+    return params;
+  };
 
   window.qseoReplaceUrlPlaceholders = function(str) {
-    return str.replace(/\$\$/g,'#').replace(/\@\@/g,'&');
+    str = str.replace(/\$\$/g, '#');
+    str = str.replace(/\@\@/g, '&');
+
+    return str;
+  };
+
+  var urlParams = qseoToolsGetUrlParams();
+
+  if ( !urlParams ) return;
+
+  if(urlParams['debug']) {
+    var debug = true;
   }
 
-  qseoToolsUpdateUrlParams();
-
-  if(urlParams['debug']) var debug = true;
-
-  window.qseoAutofillDoCommans = function(commands, start = 0) {
+  window.qseoAutofillDoCommands = function(commands, start) {
     var count = commands.length;
-    for(i=start; i<count; i++) {
+    var item;
+
+    start = start || 0;
+
+    for(i = start; i < count; i++) {
       item = commands[i];
+
       if(item) {
-        if(debug) { console.log('Parsing _autofill item "' + item + '"'); }
+        if(debug) {
+          console.log('Parsing _autofill item "' + item + '"');
+        }
+
         var parts = item.split(/=(.+)?/);
-        parts[0] = qseoReplaceUrlPlaceholders(parts[0]);
-        parts[1] = qseoReplaceUrlPlaceholders(parts[1]);
+        console.log(item);
+        console.log(parts);
+
+        parts[0] = qseoReplaceUrlPlaceholders( decode(parts[0]) );
+        parts[1] = qseoReplaceUrlPlaceholders( decode(parts[1]) );
+
         if(parts[0] == 'href') {
           var url = $(parts[1]).attr('href');
+
           if(!url) {
             url = $(parts[1])[0].attr('href');
           }
-          if(debug) { console.log('Going to href link "' + url + '" on selector "' + parts[1] + '"'); }
+
+          if(debug) {
+            console.log('Going to href link "' + url + '" on selector "' + parts[1] + '"');
+          }
+
           window.location.href = url;
-        } else if(parts[0] == 'click') {
-          if(debug) { console.log('Clicking jquery selector "' + parts[1] + '"'); }
+        }
+        else if(parts[0] == 'click') {
+          if(debug) {
+            console.log('Clicking jquery selector "' + parts[1] + '"');
+          }
+
           $(parts[1]).trigger('click');
-        } else if(parts[0] == 'sleep') {
-          if(debug) { console.log('Sleeping ' + parts[1] + ' ms.'); }
-          setTimeout(function() { window.qseoAutofillDoCommans(commands, i+1);  }, parts[1]);
+        }
+        else if(parts[0] == 'sleep') {
+          if(debug) {
+            console.log('Sleeping ' + parts[1] + ' ms.');
+          }
+
+          setTimeout(function() {
+            window.qseoAutofillDoCommands(commands, i + 1);
+          }, parts[1]);
+
           return;
-        } else {
-          if(debug) { console.log('Filling jquery selector "' + parts[0] + '" via value "' + parts[1] + '"'); }
+        }
+        else {
+          if(debug) {
+            console.log('Filling jquery selector "' + parts[0] + '" via value "' + parts[1] + '"');
+          }
+
           $(parts[0]).val(parts[1]);
         }
       }
     }
-  }
+  };
 
   if(urlParams['_autofill']) {
     var commands = urlParams['_autofill'].split(';');
-    qseoAutofillDoCommans(commands);
+
+    qseoAutofillDoCommands(commands);
   }
 }
 
-if (typeof jQuery === "function") {
-  if(debug)  console.log ("Running with local copy of jQuery!");
-  GM_main (jQuery);
-}
-else {
-  if(debug)  console.log ("fetching jQuery from some 3rd-party server.");
-  add_jQuery (GM_main);
-}
+function add_jQuery(callbackFn) {
+  var D           = document;
+  var targ        = D.getElementsByTagName('head')[0] || D.body || D.documentElement;
+  var scriptNode  = D.createElement('script');
 
-function add_jQuery (callbackFn) {
-    var D           = document;
-    var targ        = D.getElementsByTagName ('head')[0] || D.body || D.documentElement;
-    var scriptNode  = D.createElement ('script');
-    scriptNode.src  = jquery_url
-                    ;
-    scriptNode.addEventListener ("load", function () {
-        var scriptNode          = D.createElement ("script");
-        scriptNode.textContent  =
-            'var gm_jQuery  = jQuery.noConflict (true);\n'
-            + '(' + callbackFn.toString () + ')(gm_jQuery);'
-        ;
-        targ.appendChild (scriptNode);
-    }, false);
-    targ.appendChild (scriptNode);
+  scriptNode.src  = jquery_url;
+  scriptNode.addEventListener("load", function () {
+    var scriptNode = D.createElement("script");
+
+    scriptNode.textContent = 'var gm_jQuery = jQuery.noConflict(true);\n' + '(' + callbackFn.toString() + ')(gm_jQuery);';
+
+    targ.appendChild(scriptNode);
+  }, false);
+
+  targ.appendChild(scriptNode);
 }
