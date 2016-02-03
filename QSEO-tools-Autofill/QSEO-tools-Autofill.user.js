@@ -3,7 +3,7 @@
 // @namespace     http://qseo.ru
 // @description   Autofill tool for quick submit forms on sites via url. Homepage: https://github.com/Qseo/QSEO-tools-Autofill/
 // @icon          http://qseo.ru/logo/logo_q.svg
-// @version       1.2
+// @version       1.3
 // @updateURL     https://github.com/Qseo/QSEO-tools-Autofill/raw/master/QSEO-tools-Autofill/QSEO-tools-Autofill.user.js
 // @downloadURL   https://github.com/Qseo/QSEO-tools-Autofill/raw/master/QSEO-tools-Autofill/QSEO-tools-Autofill.user.js
 // @include       http*://*/*_autofill=*
@@ -50,6 +50,18 @@ function GM_main($) {
         search = /([^&=]+)=?([^&]*)/g,
         query  = window.location.search.substring(1);
 
+    // Костыль для урлов энкоженых несколько раз. Повторный urlencode происходит при редиректе. Решение тут http://stackoverflow.com/questions/6520484/mod-rewrite-urlencoding-an-already-urlencoded-querystring-parameter-any-way-to
+    var i = 0, query_prev;
+
+    while(query != decode(query) && i < 10) {
+      query_prev = query;
+      query = decode(query);
+      i++;
+    }
+
+    query = query_prev;
+    // --- END
+
     while (match = search.exec(query)) {
       params[ decode(match[1]) ] = match[2];
     }
@@ -87,8 +99,6 @@ function GM_main($) {
         }
 
         var parts = item.split(/=(.+)?/);
-        console.log(item);
-        console.log(parts);
 
         parts[0] = qseoReplaceUrlPlaceholders( decode(parts[0]) );
         parts[1] = qseoReplaceUrlPlaceholders( decode(parts[1]) );
