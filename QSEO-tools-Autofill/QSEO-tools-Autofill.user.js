@@ -3,7 +3,7 @@
 // @namespace     http://qseo.ru
 // @description   Autofill tool for quick submit forms on sites via url. Homepage: https://github.com/Qseo/QSEO-tools-Autofill/
 // @icon          http://qseo.ru/logo/logo_q.svg
-// @version       1.5
+// @version       1.6
 // @updateURL     https://github.com/Qseo/QSEO-tools-Autofill/raw/master/QSEO-tools-Autofill/QSEO-tools-Autofill.user.js
 // @downloadURL   https://github.com/Qseo/QSEO-tools-Autofill/raw/master/QSEO-tools-Autofill/QSEO-tools-Autofill.user.js
 // @include       http*://*/*_autofill=*
@@ -101,8 +101,11 @@ function GM_main($) {
           console.log('Parsing _autofill item "' + item + '"');
         }
 
-        var parts = item.split(/=(.+)?/);
-        console.log(parts);
+        var parts = decode(item).split(/=(.+)?/);
+
+        if(debug) {
+          console.log(parts);
+        }
 
         parts[0] = qseoReplaceUrlPlaceholders( decode(parts[0]) );
         parts[1] = qseoReplaceUrlPlaceholders( decode(parts[1]) );
