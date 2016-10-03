@@ -3,9 +3,10 @@
 // @namespace     http://qseo.ru
 // @description   Autofill tool for quick submit forms on sites via url. Homepage: https://github.com/Qseo/QSEO-tools-Autofill/
 // @icon          http://qseo.ru/logo/logo_q.svg
-// @version       1.6
+// @version       1.7
 // @updateURL     https://github.com/Qseo/QSEO-tools-Autofill/raw/master/QSEO-tools-Autofill/QSEO-tools-Autofill.user.js
 // @downloadURL   https://github.com/Qseo/QSEO-tools-Autofill/raw/master/QSEO-tools-Autofill/QSEO-tools-Autofill.user.js
+// @require       http://yastatic.net/jquery/1.11.0/jquery.min.js
 // @include       http*://*/*_autofill=*
 // @grant         GM_info
 // ==/UserScript==
@@ -167,9 +168,7 @@ function add_jQuery(callbackFn) {
   scriptNode.src  = jquery_url;
   scriptNode.addEventListener("load", function () {
     var scriptNode = D.createElement("script");
-
     scriptNode.textContent = 'var gm_jQuery = jQuery.noConflict(true);\n' + '(' + callbackFn.toString() + ')(gm_jQuery);';
-
     targ.appendChild(scriptNode);
   }, false);
 
